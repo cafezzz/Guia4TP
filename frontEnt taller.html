@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD de Tabla</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .form-container input, .form-container button {
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .form-container input {
+            width: calc(100% - 22px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="form-container">
+        <h2>Crear/Actualizar Registro</h2>
+        <form id="crud-form">
+            <input type="hidden" id="record-id">
+            <label for="name">Nombre:</label>
+            <input type="text" id="name" required>
+            <label for="age">Edad:</label>
+            <input type="number" id="age" required>
+            <button type="submit">Guardar</button>
+        </form>
+    </div>
+
+    <div>
+        <h2>Tabla de Registros</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Edad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <!-- Los registros se insertarán aquí mediante JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let records = [];
+        let nextId = 1;
+
+        document.getElementById('crud-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const id = document.getElementById('record-id').value;
+            const name = document.getElementById('name').value;
+            const age = document.getElementById('age').value;
+
+            if (id) {
+                // Actualizar registro
+                const index = records.findIndex(record => record.id == id);
+                if (index !== -1) {
+                    records[index] = { id, name, age };
+                }
+            } else {
+                // Crear nuevo registro
+                records.push({ id: nextId++, name, age });
+            }
+
+            document.getElementById('crud-form').reset();
+            document.getElementById('record-id').value = '';
+            updateTable();
+        });
+
+        function updateTable() {
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.id}</td>
+                    <td>${record.name}</td>
+                    <td>${record.age}</td>
+                    <td>
+                        <button onclick="editRecord(${record.id})">Editar</button>
+                        <button onclick="deleteRecord(${record.id})">Eliminar</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        function editRecord(id) {
+            const record = records.find(record => record.id == id);
+            if (record) {
+                document.getElementById('record-id').value = record.id;
+                document.getElementById('name').value = record.name;
+                document.getElementById('age').value = record.age;
+            }
+        }
+
+        function deleteRecord(id) {
+            records = records.filter(record => record.id !== id);
+            updateTable();
+        }
+    </script>
+
+</body>
+</html>
